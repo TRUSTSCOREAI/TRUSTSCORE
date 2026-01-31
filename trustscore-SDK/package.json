@@ -1,0 +1,31 @@
+{
+    "name": "trustscore-sdk",
+    "version": "1.0.0",
+    "description": "SDK for TrustScore fraud detection and reputation API",
+    "main": "index.js",
+    "keywords": [
+        "trustscore",
+        "x402",
+        "fraud-detection",
+        "reputation",
+        "ai-agents",
+        "blockchain"
+    ],
+    "author": "Your Name",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yourusername/trustscore"
+    },
+    "bugs": {
+        "url": "https://github.com/yourusername/trustscore/issues"
+    },
+    "homepage": "https://trustscore.app",
+    "dependencies": {
+        "axios": "^1.6.2",
+        "ethers": "^6.9.0"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    }
+}

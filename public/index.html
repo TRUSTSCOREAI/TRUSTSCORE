@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustScore - Fraud Detection & Reputation for x402</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loading {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-900">TrustScore</h1>
+                    <span class="ml-2 text-sm text-gray-500">x402 Trust Layer</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">Status: <span id="status-indicator" class="text-green-600">●
+                                Online</span></span>
+                        <span class="text-sm text-gray-500">|</span>
+                        <div id="wallet-section" class="flex items-center space-x-2">
+                            <span id="wallet-address" class="text-sm text-gray-600 hidden"></span>
+                            <button id="wallet-btn"
+                                class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                Connect Wallet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Search Section -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Check Address Reputation</h2>
+            <div class="flex gap-4">
+                <div class="flex-1">
+                    <input type="text" id="address-input" placeholder="Enter Ethereum address (0x...)"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <button id="check-btn"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50">
+                    Check Reputation
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">Enter any Ethereum address to check if it's a service or agent and
+                view its reputation</p>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden fade-in">
+            <!-- Address Info -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Address Analysis</h3>
+                    <span id="address-type"
+                        class="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full"></span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gray-900" id="reputation-score">--</div>
+                        <div class="text-sm text-gray-500">Reputation Score</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-semibold text-gray-900" id="trust-level">--</div>
+                        <div class="text-sm text-gray-500">Trust Level</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-semibold text-gray-900" id="fraud-flags">--</div>
+                        <div class="text-sm text-gray-500">Active Fraud Flags</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Metrics -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Service Metrics -->
+                <div id="service-metrics" class="bg-white rounded-lg shadow-sm p-6 hidden">
+                    <h4 class="text-md font-semibold text-gray-900 mb-4">Service Metrics</h4>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Transactions:</span>
+                            <span class="font-medium" id="service-transactions">--</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Volume:</span>
+                            <span class="font-medium" id="service-volume">--</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Unique Payers:</span>
+                            <span class="font-medium" id="service-payers">--</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Account Age:</span>
+                            <span class="font-medium" id="service-age">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Metrics -->
+                <div id="agent-metrics" class="bg-white rounded-lg shadow-sm p-6 hidden">
+                    <h4 class="text-md font-semibold text-gray-900 mb-4">Agent Metrics</h4>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Payments:</span>
+                            <span class="font-medium" id="agent-payments">--</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Spent:</span>
+                            <span class="font-medium" id="agent-spent">--</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Unique Services:</span>
+                            <span class="font-medium" id="agent-services">--</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Account Age:</span>
+                            <span class="font-medium" id="agent-age">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fraud Flags -->
+            <div id="fraud-section" class="bg-white rounded-lg shadow-sm p-6 mb-6 hidden">
+                <h4 class="text-md font-semibold text-gray-900 mb-4">Active Fraud Flags</h4>
+                <div id="fraud-flags-list" class="space-y-3">
+                    <!-- Fraud flags will be populated here -->
+                </div>
+            </div>
+
+            <!-- Trust Compatibility Checker -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h4 class="text-md font-semibold text-gray-900 mb-4">Trust Compatibility Check</h4>
+                <p class="text-sm text-gray-600 mb-4">Check if this address is compatible with another service or agent
+                </p>
+                <div class="flex gap-4">
+                    <input type="text" id="partner-address" placeholder="Enter partner address (0x...)"
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <button id="compatibility-btn"
+                        class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50">
+                        Check Compatibility
+                    </button>
+                </div>
+                <div id="compatibility-result" class="mt-4 hidden">
+                    <div class="p-4 rounded-md" id="compatibility-status"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform Stats -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mt-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Platform Statistics</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600" id="total-transactions">--</div>
+                    <div class="text-sm text-gray-500">Transactions</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-green-600" id="total-services">--</div>
+                    <div class="text-sm text-gray-500">Services</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-purple-600" id="total-agents">--</div>
+                    <div class="text-sm text-gray-500">Agents</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-red-600" id="active-fraud">--</div>
+                    <div class="text-sm text-gray-500">Active Fraud Flags</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center text-gray-500 text-sm">
+                <p>&copy; 2026 TrustScore. Built by @0xBerry for the x402 ecosystem.</p>
+                <p class="mt-1">Real-time fraud detection and reputation scoring for AI agent payments.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>
