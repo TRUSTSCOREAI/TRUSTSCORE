@@ -229,7 +229,7 @@ The system will be available at:
 curl http://localhost:3000/api/stats
 ```
 
-## SDK Usage
+## SDK Usage(In Development)
 
 ### Installation
 
@@ -521,14 +521,13 @@ BASE_RPC_URL=https://your-alchemy-url
 
 ### Revenue Streams
 
-1. **API Subscriptions** - $99/month per service for premium features
+1. **API Subscriptions** - $10/month per service for premium features
 2. **Pay-per-Check** - $0.01-$0.05 per reputation/fraud check
 3. **Enterprise** - Custom integrations and white-label solutions
 
 ### Free Tier Limitations
 - 10 API calls per month
 - Basic reputation scores
-- Email alerts only
 - No advanced fraud pattern analysis
 
 ## Security
