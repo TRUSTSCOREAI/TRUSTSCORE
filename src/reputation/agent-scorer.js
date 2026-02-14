@@ -1,5 +1,5 @@
 // src/reputation/agent-scorer.js - Agent Reputation Algorithm
-const { getDatabase } = require('../db/database');
+const { getDatabase, initializeDatabase } = require('../db/database');
 const { saveAgentReputation } = require('../db/queries');
 const config = require('../config/config');
 
@@ -9,6 +9,8 @@ const config = require('../config/config');
  * @returns {Object} Reputation data including score, trust level, and metrics
  */
 function calculateAgentReputation(agentAddress) {
+  // Ensure database is initialized
+  initializeDatabase();
   const db = getDatabase();
   const address = agentAddress.toLowerCase();
 

@@ -1,5 +1,5 @@
 // src/reputation/service-scorer.js - Service Reputation Algorithm
-const { getDatabase } = require('../db/database');
+const { getDatabase, initializeDatabase } = require('../db/database');
 const { saveServiceReputation, getFraudFlags } = require('../db/queries');
 const config = require('../config/config');
 
@@ -9,6 +9,8 @@ const config = require('../config/config');
  * @returns {Object} Reputation data including score, trust level, and metrics
  */
 function calculateServiceReputation(serviceAddress) {
+  // Ensure database is initialized
+  initializeDatabase();
   const db = getDatabase();
   const address = serviceAddress.toLowerCase();
 
@@ -70,7 +72,7 @@ function calculateServiceReputation(serviceAddress) {
 
   // 5. Recent Activity (0-10 points)
   const activityScore = daysSinceLastActive < 7 ? 10 :
-                        daysSinceLastActive < 30 ? 5 : 0;
+    daysSinceLastActive < 30 ? 5 : 0;
   score += activityScore;
 
   // 6. Fraud Penalties (-15 to -27 points per flag)

@@ -7,7 +7,11 @@ module.exports = {
     usdcContract: process.env.USDC_CONTRACT || '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     chainId: 8453, // Base Mainnet
     blockConfirmations: 1,
-    backfillBlocks: 1000
+    backfillBlocks: 1000,
+    // Block range configuration for broader searches
+    batchSize: parseInt(process.env.INDEXER_BATCH_SIZE) || 50, // Number of blocks to check in each batch
+    maxBatchSize: parseInt(process.env.INDEXER_MAX_BATCH_SIZE) || 500, // Maximum batch size for efficiency
+    pollingInterval: parseInt(process.env.INDEXER_POLLING_INTERVAL) || 10000 // Polling interval in milliseconds
   },
 
   // Server

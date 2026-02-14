@@ -1,69 +1,55 @@
 // src/api/server.js - Express API Server
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
 const path = require('path');
-const config = require('../config/config');
-const logger = require('../utils/logger');
+
+// Import routes
+const reputationRoutes = require('./routes/reputation');
+const fraudRoutes = require('./routes/fraud');
+const statsRoutes = require('./routes/stats');
+const webhookRoutes = require('./routes/webhooks');
+const transactionRoutes = require('./routes/transactions');
+
+// Import middleware
+const { x402PaymentRequired } = require('./middleware/x402-payment');
 const rateLimit = require('./middleware/rateLimit');
 const errorHandler = require('./middleware/errorHandler');
 
-// Import routes
-const fraudRoutes = require('./routes/fraud');
-const reputationRoutes = require('./routes/reputation');
-const webhooksRoutes = require('./routes/webhooks');
-const statsRoutes = require('./routes/stats');
+// Import config
+const config = require('../config/config');
+const logger = require('../utils/logger');
 
+// Create Express app
 const app = express();
 
-/**
- * Middleware
- */
-app.use(cors({
-  origin: config.server.corsOrigins,
-  credentials: true
-}));
-
-app.use(express.json());
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(morgan('combined'));
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static dashboard
+// Static files
 app.use(express.static(path.join(__dirname, '../../public')));
 
-// Apply rate limiting to API routes
-app.use('/api', rateLimit);
+// API Routes
+app.use('/api/reputation', reputationRoutes);
+app.use('/api/fraud', fraudRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/webhooks', webhookRoutes);
+app.use('/api/transactions', transactionRoutes);
 
-// Request logging (development only)
-if (config.server.env === 'development') {
-  app.use((req, res, next) => {
-    logger.debug(`${req.method} ${req.path}`);
-    next();
-  });
-}
-
-/**
- * Routes
- */
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../public/index.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../public/index.html'));
-});
-
+// Health check
 app.get('/health', (req, res) => {
   res.json({
-    status: 'healthy',
+    status: 'ok',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    version: '1.0.0',
+    features: ['enhanced-fraud-detection', 'transaction-history', 'reputation-breakdown', 'visual-analysis']
   });
 });
-
-// API Routes
-app.use('/api/fraud', fraudRoutes);
-app.use('/api/reputation', reputationRoutes);
-app.use('/api/webhooks', webhooksRoutes);
-app.use('/api/stats', statsRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -82,8 +68,17 @@ app.use(errorHandler);
  */
 function startServer() {
   return new Promise((resolve) => {
-    app.listen(config.server.port, () => {
-      logger.info(`Server listening on port ${config.server.port}`);
+    const PORT = process.env.PORT || config.server.port || 3000;
+    app.listen(PORT, () => {
+      logger.info(`TrustScore Enhanced API server running on port ${PORT}`);
+      logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      logger.info(`Health check: http://localhost:${PORT}/health`);
+      logger.info('Enhanced features enabled:');
+      logger.info('- 7-pattern fraud detection');
+      logger.info('- Transaction history API');
+      logger.info('- Reputation breakdown visualization');
+      logger.info('- Enhanced frontend with animations');
+      logger.info('- Quick test addresses for demo');
       resolve();
     });
   });

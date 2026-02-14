@@ -37,45 +37,45 @@ const config = require('./src/config/config');
 async function start() {
     try {
         // Display startup banner with system info
-        logger.info(' Starting TrustScore...');
+        logger.info('Starting TrustScore...');
         logger.info(`Environment: ${config.server.env}`);
         logger.info(`Network: Base (Chain ID: ${config.blockchain.chainId})`);
         logger.info(`Database: ${config.database.type.toUpperCase()} ${config.database.type === 'sqlite' ? config.database.path : `${config.database.host}:${config.database.port}/${config.database.name}`}`);
 
         // Step 1: Initialize database connection and create tables
         // This establishes the database connection and creates all necessary tables
-        logger.info(' Initializing database...');
+        logger.info('Initializing database...');
         initializeDatabase();
         await initializeSchema();
-        logger.info(' Database ready');
+        logger.info('Database ready');
 
         // Step 2: X402 indexer is started by scheduler
         // Monitors Base blockchain for USDC TransferWithAuthorization events
-        logger.info(' X402 indexer will be started by scheduler...');
+        logger.info('X402 indexer will be started by scheduler...');
 
         // Step 3: Start background jobs
         // Schedules fraud detection scans and reputation score updates
-        logger.info('  Starting background jobs...');
+        logger.info('Starting background jobs...');
         startScheduler();
-        logger.info(' Background jobs scheduled');
+        logger.info('Background jobs scheduled');
 
         // Step 4: Start API server
         // Launches Express server with REST endpoints for reputation/fraud queries
-        logger.info(' Starting API server...');
+        logger.info('Starting API server...');
         await startServer();
-        logger.info(` API server running on port ${config.server.port}`);
+        logger.info(`API server running on port ${config.server.port}`);
 
         // Display success message with access URLs
         logger.info('');
-        logger.info(' TrustScore is fully operational!');
-        logger.info(` API: http://localhost:${config.server.port}`);
-        logger.info(`  Dashboard: http://localhost:${config.server.port}/dashboard`);
-        logger.info(` Payment Wallet: ${config.payment.walletAddress}`);
+        logger.info('TrustScore is fully operational!');
+        logger.info(`API: http://localhost:${config.server.port}`);
+        logger.info(`Dashboard: http://localhost:${config.server.port}/dashboard`);
+        logger.info(`Payment Wallet: ${config.payment.walletAddress}`);
         logger.info('');
 
     } catch (error) {
         // Log fatal error and exit if startup fails
-        logger.error(' Failed to start TrustScore:', error);
+        logger.error('Failed to start TrustScore:', error);
         logger.error('Please check your configuration and database connection');
         process.exit(1);
     }
@@ -83,12 +83,12 @@ async function start() {
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
-    logger.info(' Received SIGINT, shutting down gracefully...');
+    logger.info('Received SIGINT, shutting down gracefully...');
     process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-    logger.info(' Received SIGTERM, shutting down gracefully...');
+    logger.info('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
 

@@ -4,7 +4,7 @@ const config = require('../config/config');
 const logger = require('../utils/logger');
 const { runFraudScan } = require('./fraud-scanner');
 const { updateAllScores } = require('./score-updater');
-const x402Indexer = require('../indexer/x402-indexer');
+const x402Indexer = require('../indexer/enhanced-indexer');
 
 /**
  * Start all scheduled background jobs for fraud scanning and reputation updates
@@ -37,7 +37,7 @@ function startScheduler() {
     setTimeout(async () => {
         try {
             await x402Indexer.initialize();
-            await x402Indexer.startPollingIndexing(); // Use polling instead of event filters
+            await x402Indexer.startIndexing(); // Use enhanced indexer
             logger.info(' X402 indexer started with polling approach');
         } catch (error) {
             logger.error(' X402 indexer failed to start:', error);

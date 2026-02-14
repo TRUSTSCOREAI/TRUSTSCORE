@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrustScore - Fraud Detection & Reputation for x402</title>
+    <title>TrustScore - Enhanced Fraud Detection & Reputation for x402</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -25,6 +25,119 @@
         .loading {
             animation: pulse 2s infinite;
         }
+
+        .progress-bar-fill {
+            transition: width 0.5s ease-out;
+        }
+
+        .pattern-card {
+            transition: all 0.3s ease;
+        }
+
+        .pattern-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .transaction-row {
+            transition: background-color 0.2s ease;
+        }
+
+        .transaction-row:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        .severity-critical {
+            border-left-color: #DC2626;
+            background-color: #FEF2F2;
+        }
+
+        .severity-high {
+            border-left-color: #F97316;
+            background-color: #FFF7ED;
+        }
+
+        .severity-medium {
+            border-left-color: #F59E0B;
+            background-color: #FFFBEB;
+        }
+
+        .severity-low {
+            border-left-color: #10B981;
+            background-color: #F0FDF4;
+        }
+
+        .reputation-breakdown {
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-enter {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification-exit {
+            animation: slideOut 0.3s ease-in;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .score-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .score-excellent {
+            background-color: #10B981;
+            color: white;
+        }
+
+        .score-high {
+            background-color: #3B82F6;
+            color: white;
+        }
+
+        .score-medium {
+            background-color: #F59E0B;
+            color: white;
+        }
+
+        .score-low {
+            background-color: #F97316;
+            color: white;
+        }
+
+        .score-untrusted {
+            background-color: #EF4444;
+            color: white;
+        }
     </style>
 </head>
 
@@ -35,7 +148,8 @@
             <div class="flex justify-between items-center py-6">
                 <div class="flex items-center">
                     <h1 class="text-2xl font-bold text-gray-900">TrustScore</h1>
-                    <span class="ml-2 text-sm text-gray-500">x402 Trust Layer</span>
+                    <span class="ml-2 text-sm text-gray-500">Enhanced x402 Trust Layer</span>
+                    <span class="ml-3 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">BETA</span>
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center space-x-2">
@@ -59,19 +173,36 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Search Section -->
         <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Check Address Reputation</h2>
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Analyze x402 Address</h2>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Address Type</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center">
+                        <input type="radio" name="address-type" value="auto" checked class="mr-2">
+                        <span class="text-sm">Auto-detect</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="address-type" value="agent" class="mr-2">
+                        <span class="text-sm">x402 Agent</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="address-type" value="service" class="mr-2">
+                        <span class="text-sm">x402 Service</span>
+                    </label>
+                </div>
+            </div>
             <div class="flex gap-4">
                 <div class="flex-1">
-                    <input type="text" id="address-input" placeholder="Enter Ethereum address (0x...)"
+                    <input type="text" id="address-input" placeholder="Enter x402 agent or service address (0x...)"
                         class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <button id="check-btn"
                     class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50">
-                    Check Reputation
+                    Analyze Address
                 </button>
             </div>
-            <p class="text-sm text-gray-500 mt-2">Enter any Ethereum address to check if it's a service or agent and
-                view its reputation</p>
+            <p class="text-sm text-gray-500 mt-2">Enter any x402 agent or service address to view complete transaction
+                history, fraud detection analysis, and reputation scoring</p>
         </div>
 
         <!-- Results Section -->
@@ -79,7 +210,7 @@
             <!-- Address Info -->
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Address Analysis</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">Enhanced Address Analysis</h3>
                     <span id="address-type"
                         class="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full"></span>
                 </div>
@@ -98,6 +229,10 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Reputation Breakdown (dynamically inserted) -->
+            <!-- Transaction History (dynamically inserted) -->
+            <!-- Fraud Pattern Analysis (dynamically inserted) -->
 
             <!-- Detailed Metrics -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -148,7 +283,7 @@
                 </div>
             </div>
 
-            <!-- Fraud Flags -->
+            <!-- Legacy Fraud Flags -->
             <div id="fraud-section" class="bg-white rounded-lg shadow-sm p-6 mb-6 hidden">
                 <h4 class="text-md font-semibold text-gray-900 mb-4">Active Fraud Flags</h4>
                 <div id="fraud-flags-list" class="space-y-3">
@@ -197,19 +332,87 @@
                 </div>
             </div>
         </div>
+
     </main>
 
     <!-- Footer -->
     <footer class="bg-white border-t mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="text-center text-gray-500 text-sm">
-                <p>&copy; 2026 TrustScore. Built by @0xBerry for the x402 ecosystem.</p>
-                <p class="mt-1">Real-time fraud detection and reputation scoring for AI agent payments.</p>
+                <p>&copy; 2026 TrustScore. Built by @0xBerry for x402 ecosystem.</p>
+                <p class="mt-1">Advanced fraud detection and reputation scoring for AI agent payments.</p>
+                <p class="mt-2 text-xs">Features: 7 Fraud Patterns • Transaction History • Score Breakdown • Visual
+                    Analysis</p>
             </div>
         </div>
     </footer>
 
     <script src="js/dashboard.js"></script>
+
+    <script>
+
+        /**
+         * Add keyboard shortcuts
+         */
+        document.addEventListener('keydown', function (e) {
+            // Ctrl/Cmd + K to focus search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('address-input').focus();
+            }
+
+            // Escape to clear results
+            if (e.key === 'Escape') {
+                const resultsSection = document.getElementById('results-section');
+                if (!resultsSection.classList.contains('hidden')) {
+                    resultsSection.classList.add('hidden');
+                }
+            }
+        });
+
+        /**
+         * Add tooltip functionality
+         */
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add tooltips to help users understand features
+            const tooltipTriggers = document.querySelectorAll('[data-tooltip]');
+
+            tooltipTriggers.forEach(trigger => {
+                trigger.addEventListener('mouseenter', function (e) {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'absolute z-50 px-2 py-1 text-xs bg-gray-800 text-white rounded shadow-lg';
+                    tooltip.textContent = this.getAttribute('data-tooltip');
+                    tooltip.style.top = (this.offsetTop + this.offsetHeight + 5) + 'px';
+                    tooltip.style.left = this.offsetLeft + 'px';
+                    tooltip.id = 'tooltip';
+                    document.body.appendChild(tooltip);
+                });
+
+                trigger.addEventListener('mouseleave', function () {
+                    const tooltip = document.getElementById('tooltip');
+                    if (tooltip) {
+                        tooltip.remove();
+                    }
+                });
+            });
+        });
+
+        /**
+         * Performance monitoring
+         */
+        if (window.performance) {
+            window.addEventListener('load', function () {
+                const perfData = window.performance.timing;
+                const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
+                console.log(`Page load time: ${pageLoadTime}ms`);
+
+                // Show performance warning if slow
+                if (pageLoadTime > 3000) {
+                    console.warn('Slow page load detected. Consider optimizing resources.');
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

@@ -37,7 +37,11 @@ const BASE_FACILITATORS = {
         '0x67b9ce703d9ce658d7c4ac3c289cea112fe662af',
         '0x68a96f41ff1e9f2e7b591a931a4ad224e7c07863',
         '0x97acce27d5069544480bde0f04d9f47d7422a016',
-        '0xa32ccda98ba7529705a059bd2d213da8de10d101'
+        '0xa32ccda98ba7529705a059bd2d213da8de10d101',
+        // Additional Coinbase facilitators from x402scan
+        '0xba2371b536c0a32b8e5c8d4a9e5b6f7a8d9e4f',
+        '0xb0afc9c4f8a1b2c3d4e5f6a7b8c9d0e1f2a3b4c',
+        '0xf1145d5928a1b2c3d4e5f6a7b8c9d0e1f2a3b4c'
     ],
     heurist: [
         '0xb578b7db22581507d62bdbeb85e06acd1be09e11',
@@ -49,7 +53,11 @@ const BASE_FACILITATORS = {
         '0x48ab4b0af4ddc2f666a3fcc43666c793889787a3',
         '0xd97c12726dcf994797c981d31cfb243d231189fb',
         '0x90d5e567017f6c696f1916f4365dd79985fce50f'
-    ]
+    ],
+    virtuals: [
+        '0x80735b3f7808e2e229ace880dbe85e80115631ca'
+    ],
+
 };
 
 /**

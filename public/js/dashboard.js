@@ -1,6 +1,6 @@
 /**
- * dashboard.js - Frontend JavaScript for TrustScore Dashboard
- * Handles user interactions, API calls, and UI updates
+ * enhanced-dashboard.js - Enhanced Frontend JavaScript for TrustScore Dashboard
+ * Handles user interactions, API calls, and UI updates with advanced features
  */
 
 // API Base URL - adjust for production
@@ -42,7 +42,6 @@ let connectedWallet = null;
 
 /**
  * Connect to wallet (MetaMask or compatible provider)
- * @returns {Promise<string>} Connected wallet address
  */
 async function connectWallet() {
     if (window.ethereum) {
@@ -111,8 +110,6 @@ async function handleWalletClick() {
 
 /**
  * Validate Ethereum address format
- * @param {string} address - Ethereum address to validate
- * @returns {boolean} True if valid address format
  */
 function isValidAddress(address) {
     return /^0x[a-fA-F0-9]{40}$/.test(address);
@@ -120,8 +117,6 @@ function isValidAddress(address) {
 
 /**
  * Show loading state on button
- * @param {HTMLElement} button - Button element
- * @param {string} text - Loading text
  */
 function setLoading(button, text = 'Loading...') {
     button.disabled = true;
@@ -130,8 +125,6 @@ function setLoading(button, text = 'Loading...') {
 
 /**
  * Reset button to normal state
- * @param {HTMLElement} button - Button element
- * @param {string} text - Normal text
  */
 function resetButton(button, text) {
     button.disabled = false;
@@ -140,8 +133,6 @@ function resetButton(button, text) {
 
 /**
  * Show error message to user
- * @param {string} message - Error message
- * @param {Object} details - Additional error details (optional)
  */
 function showError(message, details = null) {
     // Create user-friendly error messages
@@ -156,14 +147,44 @@ function showError(message, details = null) {
         }
     }
 
-    // Simple alert for now - could be enhanced with toast notifications
-    alert(userMessage);
+    // Create enhanced error notification
+    showNotification(userMessage, 'error', 5000);
+}
+
+/**
+ * Show notification to user
+ */
+function showNotification(message, type = 'info', duration = 3000) {
+    const notification = document.createElement('div');
+    const bgColor = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500';
+
+    notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <span class="mr-2">${type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'}</span>
+            <span>${message}</span>
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Slide in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+        notification.classList.add('translate-x-0');
+    }, 100);
+
+    // Remove after duration
+    setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, duration);
 }
 
 /**
  * Format number with commas
- * @param {number} num - Number to format
- * @returns {string} Formatted number
  */
 function formatNumber(num) {
     return num.toLocaleString();
@@ -171,17 +192,13 @@ function formatNumber(num) {
 
 /**
  * Format currency (USDC)
- * @param {number} amount - Amount in USDC
- * @returns {string} Formatted currency
  */
 function formatCurrency(amount) {
-    return `$${amount.toFixed(2)} USDC`;
+    return `$${parseFloat(amount).toFixed(2)} USDC`;
 }
 
 /**
  * Get trust level color class
- * @param {string} level - Trust level
- * @returns {string} Tailwind CSS classes
  */
 function getTrustLevelColor(level) {
     const colors = {
@@ -195,14 +212,44 @@ function getTrustLevelColor(level) {
 }
 
 /**
+ * Create progress bar for score breakdown
+ */
+function createProgressBar(score, maxScore, label, colorClass = 'bg-blue-500') {
+    const percentage = Math.min((score / maxScore) * 100, 100);
+    const scoreColor = percentage >= 80 ? 'bg-green-500' : percentage >= 60 ? 'bg-blue-500' : percentage >= 40 ? 'bg-yellow-500' : 'bg-red-500';
+
+    return `
+        <div class="mb-3">
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-sm text-gray-600">${label}</span>
+                <span class="text-sm font-medium">${score}/${maxScore}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="${scoreColor} h-2 rounded-full transition-all duration-500 ease-out" 
+                     style="width: 0%" data-target-width="${percentage}%"></div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Animate progress bars
+ */
+function animateProgressBars() {
+    const progressBars = document.querySelectorAll('[data-target-width]');
+    progressBars.forEach((bar, index) => {
+        setTimeout(() => {
+            bar.style.width = bar.dataset.targetWidth;
+        }, index * 100);
+    });
+}
+
+/**
  * API Functions
  */
 
 /**
  * Make API request with error handling
- * @param {string} endpoint - API endpoint
- * @param {Object} options - Additional options for the request
- * @returns {Promise<Object>} API response data
  */
 async function apiRequest(endpoint, options = {}) {
     try {
@@ -247,20 +294,65 @@ async function apiRequest(endpoint, options = {}) {
 }
 
 /**
+ * Get transaction history for an address
+ */
+async function getTransactionHistory(address, limit = 10, type = null) {
+    const url = `/api/transactions/${address}?limit=${limit}`;
+    if (type) {
+        return await apiRequest(`${url}&type=${type}`);
+    }
+    return await apiRequest(url);
+}
+
+/**
+ * Analyze fraud patterns for an address
+ */
+async function analyzeFraudPatterns(address) {
+    try {
+        return await apiRequest(`/api/fraud/analyze/${address}`);
+    } catch (error) {
+        // If payment required, fall back to basic status
+        if (error.message.includes('Payment Required')) {
+            return await apiRequest(`/api/fraud/status/${address}`);
+        }
+        throw error;
+    }
+}
+
+/**
  * Check reputation for an address
- * @param {string} address - Ethereum address
- * @returns {Promise<Object>} Reputation data
  */
 async function checkReputation(address) {
+    const addressType = document.querySelector('input[name="address-type"]:checked').value;
+
     // Try one-time payment endpoint first (better value for users)
     try {
         const serviceData = await apiRequest(`/api/reputation/onetime/${address}`);
         return { type: 'service', data: serviceData };
     } catch (error) {
-        // If not a service, try free agent endpoint
+        // If not a service, try appropriate endpoint based on selection
         try {
-            const agentData = await apiRequest(`/api/reputation/agent/${address}`);
-            return { type: 'agent', data: agentData };
+            if (addressType === 'agent') {
+                const agentData = await apiRequest(`/api/reputation/agent/${address}`);
+                return { type: 'agent', data: agentData };
+            } else if (addressType === 'service') {
+                const serviceData = await apiRequest(`/api/reputation/service/${address}`);
+                return { type: 'service', data: serviceData };
+            } else {
+                // Auto-detect: try service first, then agent
+                try {
+                    const serviceData = await apiRequest(`/api/reputation/free/${address}`);
+                    if (serviceData.totalTransactions > 0) {
+                        return { type: 'service', data: serviceData };
+                    } else {
+                        const agentData = await apiRequest(`/api/reputation/agent/${address}`);
+                        return { type: 'agent', data: agentData };
+                    }
+                } catch (autoError) {
+                    const agentData = await apiRequest(`/api/reputation/agent/${address}`);
+                    return { type: 'agent', data: agentData };
+                }
+            }
         } catch (error) {
             throw new Error('Address not found in TrustScore database');
         }
@@ -269,8 +361,6 @@ async function checkReputation(address) {
 
 /**
  * Check fraud status for an address
- * @param {string} address - Ethereum address
- * @returns {Promise<Object>} Fraud data
  */
 async function checkFraud(address) {
     return await apiRequest(`/api/fraud/check/${address}`);
@@ -278,9 +368,6 @@ async function checkFraud(address) {
 
 /**
  * Check trust compatibility between addresses
- * @param {string} address1 - First address
- * @param {string} address2 - Second address
- * @returns {Promise<Object>} Compatibility data
  */
 async function checkCompatibility(address1, address2) {
     return await apiRequest(`/api/reputation/trust-check?service=${address1}&agent=${address2}`);
@@ -288,7 +375,6 @@ async function checkCompatibility(address1, address2) {
 
 /**
  * Get platform statistics
- * @returns {Promise<Object>} Platform stats
  */
 async function getPlatformStats() {
     return await apiRequest('/api/stats');
@@ -299,25 +385,16 @@ async function getPlatformStats() {
  */
 
 /**
- * Update reputation display
- * @param {Object} reputation - Reputation data
- * @param {string} type - 'service' or 'agent'
+ * Update reputation display with enhanced breakdown
  */
 function updateReputationDisplay(reputation, type) {
     elements.reputationScore.textContent = reputation.reputationScore || '--';
     elements.trustLevel.textContent = reputation.trustLevel || '--';
     elements.trustLevel.className = `px-3 py-1 text-sm font-medium rounded-full ${getTrustLevelColor(reputation.trustLevel || 'medium')}`;
 
-    // Show free tier notification if applicable
-    if (reputation.freeTier) {
-        // Add a small notification that this is a free tier check
-        const freeTierNote = document.createElement('div');
-        freeTierNote.className = 'mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-700';
-        freeTierNote.innerHTML = '📊 Using Free Tier - Basic reputation data (10 checks/month)';
-
-        // Insert after the address type
-        elements.addressType.parentNode.insertBefore(freeTierNote, elements.addressType.nextSibling);
-    }
+    // Calculate and display score breakdown
+    const breakdown = calculateScoreBreakdown(reputation, type);
+    displayReputationBreakdown(breakdown);
 
     // Show relevant metrics section
     if (type === 'service') {
@@ -342,8 +419,288 @@ function updateReputationDisplay(reputation, type) {
 }
 
 /**
- * Update fraud flags display
- * @param {Array} fraudFlags - Array of fraud flags
+ * Calculate score breakdown components
+ */
+function calculateScoreBreakdown(reputation, type) {
+    const baseScore = reputation.reputationScore || 0;
+
+    if (type === 'service') {
+        const totalTx = reputation.totalTransactions || 0;
+        const volume = parseFloat(reputation.totalVolume || 0);
+        const uniquePayers = reputation.uniquePayers || 0;
+        const accountAge = reputation.accountAgeDays || 0;
+
+        return {
+            transactionVolume: {
+                score: Math.min(30, Math.floor(totalTx / 10)),
+                maxScore: 30,
+                label: 'Transaction Volume'
+            },
+            revenueHistory: {
+                score: Math.min(20, Math.floor(volume / 50)),
+                maxScore: 20,
+                label: 'Revenue History'
+            },
+            customerDiversity: {
+                score: Math.min(15, Math.floor(uniquePayers / 5)),
+                maxScore: 15,
+                label: 'Customer Diversity'
+            },
+            accountAge: {
+                score: Math.min(15, Math.floor(accountAge / 30)),
+                maxScore: 15,
+                label: 'Account Age'
+            },
+            recentActivity: {
+                score: Math.min(10, baseScore >= 70 ? 10 : baseScore >= 50 ? 8 : baseScore >= 30 ? 5 : 2),
+                maxScore: 10,
+                label: 'Recent Activity'
+            }
+        };
+    } else {
+        // Agent breakdown
+        const payments = reputation.totalPayments || 0;
+        const spent = parseFloat(reputation.totalSpent || 0);
+        const services = reputation.uniqueServices || 0;
+        const accountAge = reputation.accountAgeDays || 0;
+
+        return {
+            paymentReliability: {
+                score: Math.min(25, Math.floor(payments / 5)),
+                maxScore: 25,
+                label: 'Payment Reliability'
+            },
+            totalSpent: {
+                score: Math.min(25, Math.floor(spent / 100)),
+                maxScore: 25,
+                label: 'Total Spent'
+            },
+            serviceDiversity: {
+                score: Math.min(25, Math.floor(services / 3)),
+                maxScore: 25,
+                label: 'Service Diversity'
+            },
+            accountAge: {
+                score: Math.min(15, Math.floor(accountAge / 30)),
+                maxScore: 15,
+                label: 'Account Age'
+            },
+            trustScore: {
+                score: Math.min(10, baseScore >= 80 ? 10 : baseScore >= 60 ? 7 : baseScore >= 40 ? 4 : 2),
+                maxScore: 10,
+                label: 'Trust Score'
+            }
+        };
+    }
+}
+
+/**
+ * Display reputation breakdown with animated progress bars
+ */
+function displayReputationBreakdown(breakdown) {
+    // Create breakdown section if it doesn't exist
+    let breakdownSection = document.getElementById('reputation-breakdown');
+    if (!breakdownSection) {
+        breakdownSection = document.createElement('div');
+        breakdownSection.id = 'reputation-breakdown';
+        breakdownSection.className = 'bg-white rounded-lg shadow-sm p-6 mb-6';
+
+        const title = document.createElement('h4');
+        title.className = 'text-md font-semibold text-gray-900 mb-4';
+        title.textContent = 'Reputation Score Breakdown';
+
+        breakdownSection.appendChild(title);
+
+        // Insert after the address info section
+        const addressInfo = document.querySelector('.bg-white.rounded-lg.shadow-sm.p-6.mb-6');
+        addressInfo.parentNode.insertBefore(breakdownSection, addressInfo.nextSibling);
+    }
+
+    // Clear existing content (except title)
+    const title = breakdownSection.querySelector('h4');
+    breakdownSection.innerHTML = '';
+    breakdownSection.appendChild(title);
+
+    // Create progress bars
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'space-y-2';
+
+    Object.entries(breakdown).forEach(([key, component]) => {
+        progressContainer.innerHTML += createProgressBar(
+            component.score,
+            component.maxScore,
+            component.label
+        );
+    });
+
+    breakdownSection.appendChild(progressContainer);
+
+    // Animate progress bars after a short delay
+    setTimeout(animateProgressBars, 100);
+}
+
+/**
+ * Update transaction history display
+ */
+function updateTransactionHistory(transactions, accountType) {
+    // Create transaction history section if it doesn't exist
+    let transactionSection = document.getElementById('transaction-history');
+    if (!transactionSection) {
+        transactionSection = document.createElement('div');
+        transactionSection.id = 'transaction-history';
+        transactionSection.className = 'bg-white rounded-lg shadow-sm p-6 mb-6';
+
+        const title = document.createElement('h4');
+        title.className = 'text-md font-semibold text-gray-900 mb-4';
+        title.textContent = 'Recent Transactions (Last 10)';
+
+        transactionSection.appendChild(title);
+
+        // Insert after the reputation breakdown
+        const breakdownSection = document.getElementById('reputation-breakdown');
+        breakdownSection.parentNode.insertBefore(transactionSection, breakdownSection.nextSibling);
+    }
+
+    if (!transactions || transactions.length === 0) {
+        transactionSection.innerHTML += `
+            <div class="text-gray-500 text-center py-4">
+                No transactions found for this address
+            </div>
+        `;
+        return;
+    }
+
+    const transactionList = document.createElement('div');
+    transactionList.className = 'space-y-2';
+
+    transactions.forEach((tx, index) => {
+        const isRecent = tx.timestamp.isRecent;
+        const warningIcon = isRecent ? '🚩' : '';
+        const direction = accountType === 'service' ? 'from' : 'to';
+
+        transactionList.innerHTML += `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm text-gray-500">#${tx.metadata.index}</span>
+                    <span class="font-medium ${tx.amount.value > 50 ? 'text-red-600' : 'text-gray-900'}">
+                        ${tx.amount.formatted} ${warningIcon}
+                    </span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">
+                        ${direction} ${tx.counterparty.display}
+                    </span>
+                    <span class="text-sm text-gray-500">
+                        ${tx.timestamp.relative}
+                    </span>
+                </div>
+            </div>
+        `;
+    });
+
+    transactionSection.appendChild(transactionList);
+}
+
+/**
+ * Update fraud analysis display with enhanced patterns
+ */
+function updateFraudAnalysis(fraudAnalysis) {
+    // Create enhanced fraud analysis section
+    let fraudSection = document.getElementById('enhanced-fraud-analysis');
+    if (!fraudSection) {
+        fraudSection = document.createElement('div');
+        fraudSection.id = 'enhanced-fraud-analysis';
+        fraudSection.className = 'bg-white rounded-lg shadow-sm p-6 mb-6';
+
+        const title = document.createElement('h4');
+        title.className = 'text-md font-semibold text-gray-900 mb-4';
+        title.textContent = 'Fraud Pattern Analysis';
+
+        fraudSection.appendChild(title);
+
+        // Insert after transaction history
+        const transactionSection = document.getElementById('transaction-history');
+        transactionSection.parentNode.insertBefore(fraudSection, transactionSection.nextSibling);
+    }
+
+    // Clear existing content (except title)
+    const title = fraudSection.querySelector('h4');
+    fraudSection.innerHTML = '';
+    fraudSection.appendChild(title);
+
+    if (!fraudAnalysis.patterns || fraudAnalysis.patterns.length === 0) {
+        fraudSection.innerHTML += `
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center">
+                    <span class="text-green-600 text-2xl mr-3">✅</span>
+                    <div>
+                        <div class="font-medium text-green-800">No Suspicious Patterns Detected</div>
+                        <div class="text-sm text-green-700">This address shows normal transaction patterns</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    // Display detected patterns
+    fraudAnalysis.patterns.forEach(pattern => {
+        const severityColor = pattern.severity >= 8 ? 'red' : pattern.severity >= 6 ? 'orange' : pattern.severity >= 4 ? 'yellow' : 'green';
+        const severityIcon = pattern.severity >= 8 ? '🚨' : pattern.severity >= 6 ? '⚠️' : 'ℹ️';
+
+        const patternCard = document.createElement('div');
+        patternCard.className = `mb-4 p-4 border-l-4 border-${severityColor}-500 bg-${severityColor}-50`;
+        patternCard.innerHTML = `
+            <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-3">${severityIcon}</span>
+                    <div>
+                        <div class="font-semibold text-gray-900">${pattern.type.replace(/_/g, ' ')}</div>
+                        <div class="text-sm text-gray-600">Severity: ${pattern.severity}/10</div>
+                    </div>
+                </div>
+                <span class="px-2 py-1 text-xs font-medium bg-${severityColor}-100 text-${severityColor}-800 rounded-full">
+                    ${severityColor.toUpperCase()}
+                </span>
+            </div>
+            <p class="text-sm text-gray-700 mb-2">${pattern.explanation}</p>
+            <div class="text-xs text-gray-600">
+                <strong>Recommendation:</strong> ${pattern.recommendation}
+            </div>
+        `;
+
+        fraudSection.appendChild(patternCard);
+    });
+
+    // Add summary
+    const summaryCard = document.createElement('div');
+    summaryCard.className = 'mt-4 p-4 bg-gray-50 rounded-lg';
+    summaryCard.innerHTML = `
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div>
+                <div class="text-2xl font-bold text-red-600">${fraudAnalysis.patterns.length}</div>
+                <div class="text-sm text-gray-600">Patterns</div>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-orange-600">${fraudAnalysis.summary.maxSeverity}/10</div>
+                <div class="text-sm text-gray-600">Max Severity</div>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-blue-600">${fraudAnalysis.totalTransactions}</div>
+                <div class="text-sm text-gray-600">Transactions</div>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-green-600">${fraudAnalysis.uniquePayers}</div>
+                <div class="text-sm text-gray-600">Unique Payers</div>
+            </div>
+        </div>
+    `;
+
+    fraudSection.appendChild(summaryCard);
+}
+
+/**
+ * Update fraud flags display (legacy)
  */
 function updateFraudDisplay(fraudFlags) {
     elements.fraudFlags.textContent = fraudFlags.length;
@@ -374,7 +731,6 @@ function updateFraudDisplay(fraudFlags) {
 
 /**
  * Update compatibility result display
- * @param {Object} result - Compatibility check result
  */
 function updateCompatibilityDisplay(result) {
     elements.compatibilityResult.classList.remove('hidden');
@@ -401,7 +757,6 @@ function updateCompatibilityDisplay(result) {
 
 /**
  * Update platform statistics display
- * @param {Object} stats - Platform statistics
  */
 function updatePlatformStats(stats) {
     elements.totalTransactions.textContent = formatNumber(stats.totalTransactions || 0);
@@ -430,29 +785,57 @@ async function handleCheckAddress() {
         return;
     }
 
-    setLoading(elements.checkBtn, 'Checking...');
+    setLoading(elements.checkBtn, 'Analyzing...');
 
     try {
+        // Clear previous results
+        clearResults();
+
         // Check reputation
         const reputationResult = await checkReputation(address);
 
-        // Check fraud status
-        const fraudResult = await checkFraud(address);
+        // Get transaction history with appropriate type
+        const transactionHistory = await getTransactionHistory(address, 10, reputationResult.type);
+
+        // Analyze fraud patterns
+        const fraudAnalysis = await analyzeFraudPatterns(address);
 
         // Update UI
         elements.addressType.textContent = reputationResult.type.toUpperCase();
         updateReputationDisplay(reputationResult.data, reputationResult.type);
-        updateFraudDisplay(fraudResult.activeFlags || []);
+        updateTransactionHistory(transactionHistory.transactions || [], reputationResult.type);
+        updateFraudAnalysis(fraudAnalysis.enhancedAnalysis || fraudAnalysis);
+
+        // Update basic fraud flags if available
+        if (fraudAnalysis.legacyAnalysis) {
+            updateFraudDisplay(fraudAnalysis.legacyAnalysis.activeFlagsList || []);
+        }
 
         // Show results
         elements.resultsSection.classList.remove('hidden');
         elements.resultsSection.scrollIntoView({ behavior: 'smooth' });
 
+        showNotification('Analysis complete!', 'success', 3000);
+
     } catch (error) {
         showError(error.message);
     } finally {
-        resetButton(elements.checkBtn, 'Check Reputation');
+        resetButton(elements.checkBtn, 'Analyze Address');
     }
+}
+
+/**
+ * Clear previous results
+ */
+function clearResults() {
+    // Remove dynamic sections
+    const sections = ['reputation-breakdown', 'transaction-history', 'enhanced-fraud-analysis'];
+    sections.forEach(id => {
+        const section = document.getElementById(id);
+        if (section) {
+            section.remove();
+        }
+    });
 }
 
 /**
@@ -533,7 +916,7 @@ function init() {
     // Auto-refresh stats every 30 seconds
     setInterval(loadPlatformStats, 30000);
 
-    console.log('TrustScore Dashboard initialized');
+    console.log('Enhanced TrustScore Dashboard initialized');
 }
 
 // Initialize when DOM is ready
