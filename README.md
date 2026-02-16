@@ -1,44 +1,37 @@
-# TrustScore Enhanced - Advanced Fraud Detection & Reputation System for x402
+# TrustScore 
+(Fraud Detection & Reputation System for x402)
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![SQLite](https://img.shields.io/badge/SQLite-3+-blue.svg)](https://www.sqlite.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen.svg)](https://github.com/TRUSTSCOREAI/TRUSTSCORE)
 
-**TrustScore Enhanced** is the most advanced trust layer for the x402 autonomous AI agent payments ecosystem. It provides real-time fraud detection, comprehensive reputation scoring, and enhanced analytics to prevent scams, ensure trust, and enable safe transactions between AI agents and services.
+**TrustScore** is the trust layer for the x402 autonomous AI agent payments ecosystem. It provides real-time fraud detection, comprehensive reputation scoring, and analytics to prevent scams, ensure trust, and enable safe transactions between AI agents and services.
 
-##  What's New in Enhanced Version
-
-- ** Enhanced Indexer** - Improved blockchain monitoring with batch processing and configurable polling
-- ** Advanced Analytics** - Transaction history API with detailed breakdowns and visual analysis
-- ** Better Performance** - Optimized fraud detection with configurable batch sizes and polling intervals
-- ** Enhanced Configuration** - More flexible settings for indexer performance and fraud detection thresholds
-- ** Improved Data Management** - Better database querying and enhanced reputation calculation algorithms
-
-## Features
+##  Features
 
 ### Core Capabilities
-- ** Real-Time Fraud Detection** - Monitors all x402 transactions on Base, detecting 7 types of fraud patterns
-- ** Two-Sided Reputation System** - Scores both services (0-100) and agents (0-100) based on on-chain behavior
-- ** Trust Compatibility Checker** - Analyzes service-agent pairs for transaction safety
-- ** Webhook Alerts** - Instant notifications when fraud is detected
-- ** x402 Payment Integration** - Monetized API with free tier (10 checks/month) and one-time payment options
-- ** Background Jobs** - Automated fraud scanning and reputation score updates with configurable intervals
-- ** SQLite Database** - Lightweight, serverless database with optional PostgreSQL support
-- ** Enhanced Web Dashboard** - Modern, responsive interface with animations and visual analytics
-- ** Transaction History API** - Complete transaction analytics with pagination and detailed breakdowns
-- ** Reputation Breakdown Visualization** - Visual representation of reputation score components
+- **Real-Time Fraud Detection** - Monitors all x402 transactions on Base, detecting 7 types of fraud patterns
+- **Two-Sided Reputation System** - Scores both services (0-100) and agents (0-100) based on on-chain behavior
+- **Trust Compatibility Checker** - Analyzes service-agent pairs for transaction safety
+- **Webhook Alerts** - Instant notifications when fraud is detected
+- **x402 Payment Integration** - Monetized API with free tier (10 checks/month) and one-time payment options
+- **Background Jobs** - Automated fraud scanning and reputation score updates with configurable intervals
+- **SQLite Database** - Lightweight, serverless database with optional PostgreSQL support
+- **Web Dashboard** - Modern, responsive interface with animations and visual analytics
+- **Transaction History API** - Complete transaction analytics with pagination and detailed breakdowns
+- **Reputation Breakdown Visualization** - Visual representation of reputation score components
 
-### Advanced Fraud Patterns Detected
+### Fraud Patterns Detected
 1. **Velocity Abuse** - Services receiving >50 transactions/hour
 2. **New Wallet Risk** - Wallets <7 days old with >$100 volume  
 3. **Low Payer Diversity** - Very few unique addresses accounting for most volume
 4. **Identical Amounts** - All transactions have exactly the same amounts
-5. **Volume Spikes** - 10x+ sudden increase in daily transaction volume (enhanced threshold)
+5. **Volume Spikes** - 10x+ sudden increase in daily transaction volume
 6. **Wash Trading** - Coordinated transactions to inflate activity metrics
 7. **Time Clustering** - Suspiciously regular transaction timing indicating automation
 
-## Project Structure
+##  Project Structure
 
 ```
 TrustScore/
@@ -53,10 +46,10 @@ TrustScore/
 │   │   ├── queries.js            # SQL query functions
 │   │   └── schema.js             # Database schema definitions
 │   ├── fraud/                   # Fraud detection engine
-│   │   ├── detector.js           # Advanced fraud pattern analysis
+│   │   ├── detector.js           # Fraud pattern analysis
 │   │   └── rules.js             # Fraud detection rules
 │   ├── indexer/                 # Blockchain indexing
-│   │   ├── enhanced-indexer.js  # Enhanced Base network transaction indexer
+│   │   ├── x402-indexer.js      # Base network transaction indexer
 │   │   └── facilitator-discovery.js # Facilitator address discovery
 │   ├── jobs/                    # Background tasks
 │   │   ├── scheduler.js          # Cron job manager
@@ -113,14 +106,14 @@ The system uses SQLite by default with 8 main tables:
 - **used_nonces** - Prevents replay attacks on x402 payments
 - **user_usage** - Free tier usage tracking
 
-## Prerequisites
+##  Prerequisites
 
 - **Node.js** 18+ with npm
 - **SQLite** 3+ (included with Node.js) or PostgreSQL 13+ (optional)
 - **Alchemy** or Infura RPC endpoint for Base network
 - **Ethereum Wallet** with USDC for x402 payments
 
-## Quick Start
+##  Quick Start
 
 ### 1. Clone and Install
 
@@ -229,7 +222,7 @@ The system will be available at:
 curl http://localhost:3000/api/stats
 ```
 
-## SDK Usage(In Development)
+##  SDK Usage
 
 ### Installation
 
@@ -266,7 +259,7 @@ console.log(`Active fraud flags: ${fraudStatus.activeFlags.length}`);
 await ts.registerWebhook('0xYourService', 'https://your-api.com/webhooks/fraud');
 ```
 
-## Testing
+##  Testing
 
 Run the complete test suite:
 
@@ -285,9 +278,9 @@ npm run test:unit
 npm run test:integration
 ```
 
-##  Enhanced Web Dashboard
+##  Web Dashboard
 
-The TrustScore Enhanced dashboard provides a comprehensive web interface for analyzing x402 addresses and monitoring platform health.
+The TrustScore dashboard provides a comprehensive web interface for analyzing x402 addresses and monitoring platform health.
 
 ### Dashboard Features
 
@@ -309,7 +302,7 @@ The TrustScore Enhanced dashboard provides a comprehensive web interface for ana
 - **Loading Animations** - Smooth transitions and loading states
 - **Tooltips** - Contextual help for user guidance
 
-####  Advanced Analysis
+####  Analysis Tools
 - **Trust Compatibility Checker** - Analyze service-agent pair compatibility
 - **Fraud Pattern Detection** - Detailed explanations of detected fraud patterns
 - **Platform Statistics** - Real-time platform-wide metrics and health indicators
@@ -332,7 +325,7 @@ The dashboard uses the following key API endpoints:
 - `GET /api/transactions/:address` - Transaction history
 - `GET /api/stats` - Platform statistics
 
-## API Reference
+##  API Reference
 
 ### Reputation Endpoints
 
@@ -362,16 +355,16 @@ Check compatibility between service and agent.
 
 ### Fraud Detection Endpoints
 
-#### GET /api/fraud/analyze/:address (Premium)
+#### GET /api/fraud/analyze/:address
 Get comprehensive fraud pattern analysis with detailed explanations.
 
-#### GET /api/fraud/status/:address (Free)
+#### GET /api/fraud/status/:address
 Get basic fraud status without payment.
 
-#### GET /api/fraud/flags/:address (Premium)
+#### GET /api/fraud/flags/:address
 Get detailed fraud flag history.
 
-#### GET /api/fraud/patterns (Free)
+#### GET /api/fraud/patterns
 Get educational information about fraud patterns.
 
 ### Transaction Endpoints
@@ -390,9 +383,9 @@ Get platform-wide statistics and health metrics.
 #### POST /api/webhooks/register
 Register webhook for fraud alerts.
 
-## Configuration
+##  Configuration
 
-### Enhanced Indexer Configuration
+### Indexer Configuration
 
 ```javascript
 // src/config/config.js
@@ -402,10 +395,9 @@ blockchain: {
   chainId: 8453, // Base Mainnet
   blockConfirmations: 1,
   backfillBlocks: 1000,
-  // Enhanced batch processing configuration
-  batchSize: parseInt(process.env.INDEXER_BATCH_SIZE) || 50,        // Blocks per batch
-  maxBatchSize: parseInt(process.env.INDEXER_MAX_BATCH_SIZE) || 500, // Maximum batch size
-  pollingInterval: parseInt(process.env.INDEXER_POLLING_INTERVAL) || 10000 // Polling in ms
+  batchSize: parseInt(process.env.INDEXER_BATCH_SIZE) || 50,
+  maxBatchSize: parseInt(process.env.INDEXER_MAX_BATCH_SIZE) || 500,
+  pollingInterval: parseInt(process.env.INDEXER_POLLING_INTERVAL) || 10000
 }
 ```
 
@@ -417,7 +409,7 @@ fraud: {
   velocityLimit: 50,              // Max transactions per hour
   newWalletAgeDays: 7,            // Days to consider "new"
   newWalletVolumeThreshold: 100,  // USDC volume threshold
-  volumeSpikeMultiplier: 10,      // Enhanced spike detection multiplier (increased from 5)
+  volumeSpikeMultiplier: 10,      // Spike detection multiplier
   retrySpamLimit: 10,            // Max retries in 5 minutes
   circularFlowMinCount: 10,       // Min identical payments for wash trading
   lowDiversityRatio: 0.1,        // Minimum payer diversity ratio
@@ -433,8 +425,8 @@ reputation: {
   defaultScore: 50,
   minScore: 0,
   maxScore: 100,
-  decayDays: 30,                // Score decay over time
-  minTransactionsForScore: 5     // Minimum transactions to calculate score
+  decayDays: 30,
+  minTransactionsForScore: 5
 }
 ```
 
@@ -450,7 +442,7 @@ payment: {
     fraudCheck: parseFloat(process.env.PRICE_FRAUD_CHECK || '0.02'),
     trustCheck: parseFloat(process.env.PRICE_TRUST_CHECK || '0.05'),
     webhookRegistration: parseFloat(process.env.PRICE_WEBHOOK_REGISTRATION || '1.00'),
-    oneTimePayment: parseFloat(process.env.PRICE_ONE_TIME_PAYMENT || '0.10') // New: One-time payment for 10 free calls
+    oneTimePayment: parseFloat(process.env.PRICE_ONE_TIME_PAYMENT || '0.10')
   },
   freeTier: {
     monthlyLimit: parseInt(process.env.FREE_TIER_MONTHLY_LIMIT || '10')
@@ -469,7 +461,7 @@ jobs: {
 }
 ```
 
-## Production Deployment
+##  Production Deployment
 
 ### Railway (Recommended)
 
@@ -500,7 +492,7 @@ API_SECRET=strong-random-secret
 BASE_RPC_URL=https://your-alchemy-url
 ```
 
-## Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -517,7 +509,7 @@ BASE_RPC_URL=https://your-alchemy-url
 - **Documentation**: JSDoc comments for all public APIs
 - **Security**: Input validation and SQL injection protection mandatory
 
-## Business Model
+##  Business Model
 
 ### Revenue Streams
 
@@ -525,12 +517,12 @@ BASE_RPC_URL=https://your-alchemy-url
 2. **Pay-per-Check** - $0.01-$0.05 per reputation/fraud check
 3. **Enterprise** - Custom integrations and white-label solutions
 
-### Free Tier Limitations
+### Free Tier
 - 10 API calls per month
 - Basic reputation scores
 - No advanced fraud pattern analysis
 
-## Security
+##  Security
 
 - **Input Validation**: All inputs validated with Joi schemas
 - **Rate Limiting**: 100 requests per 15 minutes per IP
@@ -539,17 +531,17 @@ BASE_RPC_URL=https://your-alchemy-url
 - **HTTPS Only**: All production traffic encrypted
 - **API Keys**: Secure authentication for premium features
 
-## License
+##  License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## Support
+##  Support
 
 - **Issues**: [GitHub Issues](https://github.com/yourusername/trustscore/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/trustscore/discussions)
 - **SDK Docs**: [trustscore-SDK/README.md](trustscore-SDK/README.md)
 
-## Acknowledgments
+##  Acknowledgments
 
 - x402 Protocol team for the payment standard
 - Base network for fast, low-cost transactions
@@ -558,4 +550,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**TrustScore** - Making AI agent payments safe and trustworthy.
+**TrustScore** - Making AI agent payments safe and trustworthy. 
